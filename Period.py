@@ -110,14 +110,16 @@ def findPeriod(minkin, maxkin,stepsize,state0):
             
         print("xlist: ",xlist)
         print("Period: ")
-        Ps.append(xlist[1]-xlist[0])
-        print(xlist[1]-xlist[0])
+        
+        # Append a tuple of (kin, calculated period)
+        Ps.append((x,xlist[1]-xlist[0]))
+        #print(xlist[1]-xlist[0])
     return Ps
         
 minkin = 0.01
-maxkin = 0.06
-stepsize = 0.001
-b = findPeriod(minkin, maxkin,stepsize,state0)
+maxkin = 0.04
+stepsize = 0.0005
+results = findPeriod(minkin, maxkin,stepsize,state0)
 
 """
 https://stackoverflow.com/questions/25891972/solve-a-ode-for-arrays-of-parameters-python
