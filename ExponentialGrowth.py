@@ -40,7 +40,7 @@ x[i] = x[i -1] + f(x[i -1])* dt
 
 # limits: 0.0 <= t <= 150
 a = 0
-b = 150
+b = 300
  
 # Number of steps
 nsteps = 100
@@ -76,14 +76,26 @@ for i in range(1,nsteps+1):
 def y(t):
     return K / (1 + (((K-5.3)/5.3)*np.exp(-r*t)))
 
+# N = 50 steps
 plt.plot(t, narray, label='approximation')
 plt.plot(t, y(t), label='exact' )
-#plt.title( "Euler's Method Example, N="+str(N) )
+plt.title( "Euler's Method Logistic Growth, N="+str(nsteps))
 plt.xlabel('t') 
 plt.ylabel('y(t)')
 plt.legend(loc=4)
 plt.grid()
-plt.savefig( 'euler_example.png', fmt='PNG', dpi=100 )
+plt.savefig('euler_example_50steps.png', fmt='PNG', dpi=100)
+
+# N = 100 steps
+plt.plot(t, narray, label='approximation')
+plt.plot(t, y(t), label='exact' )
+plt.title( "Euler's Method Logistic Growth, N="+str(nsteps))
+plt.xlabel('t') 
+plt.ylabel('y(t)')
+plt.legend(loc=4)
+plt.grid()
+plt.savefig('euler_example_100steps.png', fmt='PNG', dpi=100)
+
 
 """
 
