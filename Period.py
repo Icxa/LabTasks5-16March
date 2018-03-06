@@ -28,7 +28,7 @@ def Period(state,t):
   K = .2
   Km = 0.15
   Kd = 0.15
-  kin = 0.06
+  kin = 0.03
   kout = 0.1
   n = 4 #Hill number
   
@@ -42,11 +42,11 @@ def Period(state,t):
   return [dM, dFc, dFn]
 
 state0 = [0.6, 0.4, 0.4]
-t = np.arange(0.0, 90, 0.01)
+t = np.arange(0.0, 60, 0.01)
 
 state = odeint(Period, state0, t)
 
-plt.plot(t,state[:,1],label='approximation')
+plt.plot(state[:,0],state[:,1],label='approximation')
 #plt.plot(t, y(t), label='exact' )
 #plt.title( "Euler's Method Example, N="+str(N) )
 plt.xlabel('F(t)') 
