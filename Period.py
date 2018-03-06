@@ -17,22 +17,10 @@ def Period(state,t):
   M = state[0]
   Fc = state[1]
   Fn = state[2]
-  
-  """
-  x = state[0]
-  y = state[1]
-  z = state[2]
-  """
 
   # these are our constants
   
-  """
-  sigma = 10.0
-  rho = 28.0
-  beta = 8.0/3.0
-  """
-  
-  Vs = 1.5
+  Vs = 1.6
   Vm = 1.5
   Vd = 1.0
   ks = 0.5
@@ -42,17 +30,10 @@ def Period(state,t):
   kin = 0.02
   kout = 0.1
   n = 4 #Hill number
-
   
   # compute state derivatives
   
-  """
-  xd = sigma * (y-x)
-  yd = (rho-z)*x - y
-  zd = x*y - beta*z
-  """
-  
-  dM = (Vs*(K**n/(K**n + Fn))) - (Vm*(M/(Km+M)))
+  dM = (Vs*(K**n))/(K**n + Fn**n) - (Vm*M/(Km+M))
   dFc = ks*M - (Vd*(Fc/(Kd+Fc))) - (kin*Fc) + (kout*Fc)
   dFn = kin*Fc - kout*Fn
 
@@ -64,16 +45,17 @@ t = np.arange(0.0, 30.0, 0.01)
 
 state = odeint(Period, state0, t)
 
-plt.plot(t, state[:,0], label='approximation')
+plt.plot(state[:,1]+ state[:,2],state[:,0],label='approximation')
 #plt.plot(t, y(t), label='exact' )
 #plt.title( "Euler's Method Example, N="+str(N) )
-plt.xlabel('t') 
-plt.ylabel('y(t)')
+plt.xlabel('F(t)') 
+plt.ylabel('M(t)')
 plt.legend(loc=4)
 plt.grid()
 plt.savefig( 'euler_example.png', fmt='PNG', dpi=100 )
 
 """
+https://stackoverflow.com/questions/25891972/solve-a-ode-for-arrays-of-parameters-python
 # do some fancy 3D plotting
 from mpl_toolkits.mplot3d import Axes3D
 fig = figure()
