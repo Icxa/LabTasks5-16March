@@ -8,11 +8,12 @@ Created on Mon Mar  5 22:04:51 2018
 import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
+from scipy.signal import argrelextrema
 #import scipy.optimize as optimize
 
 # https://www.gribblelab.org/compneuro/2_Modelling_Dynamical_Systems.html
 
-def Period(state,t):
+def Period(state,t,kin):
   # unpack the initial state vector
   
   M = state[0]
@@ -28,7 +29,7 @@ def Period(state,t):
   K = .2
   Km = 0.15
   Kd = 0.15
-  kin = 0.03
+  kin = kin
   kout = 0.1
   n = 4 #Hill number
   
@@ -48,48 +49,67 @@ endtime = 100
 t = np.arange(starttime, endtime, stepsize)
 numsteps = (endtime - starttime)/stepsize
 
-state = odeint(Period, state0, t)
 
-# Plot the M(t) vs F(t)
-plt.figure(1)
-plt.plot(state[:,0],state[:,1])
-#plt.plot(t, y(t), label='exact' )
-plt.title("Goldbeter Model")
-plt.xlabel('F(t)') 
-plt.ylabel('M(t)')
-#plt.legend(loc=4)
-plt.grid()
-plt.savefig('Mt_vs_Ft.png', fmt='PNG', dpi=100)
+# Function for finding the kin value that produces a period of P = 21.5
+def findPeriod(minkin, maxkin,stepsize,state0):
+    
+    Ps = []
+    state0 = state0
+    stepsize = stepsize
+    kinvalues = np.arange(minkin,maxkin,stepsize)
+    
+    # Iterate through all the kin values
+    for x in kinvalues:
+        
+        state = odeint(Period, state0, t, args=(x,))
 
-# Plot the M(t) vs t
-plt.figure(2)
-plt.plot(t,state[:,0])
-#plt.plot(t, y(t), label='exact' )
-plt.title("Goldbeter Model")
-plt.xlabel('t') 
-plt.ylabel('M(t)')
-#plt.legend(loc=4)
-plt.grid()
-plt.savefig('Mt_vs_t.png', fmt='PNG', dpi=100)
+        # Plot the M(t) vs F(t)
+        plt.figure(1)
+        plt.plot(state[:,0],state[:,1])
+        #plt.plot(t, y(t), label='exact' )
+        plt.title("Goldbeter Model")
+        plt.xlabel('F(t)') 
+        plt.ylabel('M(t)')
+        #plt.legend(loc=4)
+        plt.grid()
+        plt.show()
+        #plt.savefig('Mt_vs_Ft.png', fmt='PNG', dpi=100)
+        
+        # Plot the M(t) vs t
+        plt.figure(2)
+        plt.plot(t,state[:,0])
+        #plt.plot(t, y(t), label='exact' )
+        plt.title("Goldbeter Model")
+        plt.xlabel('t') 
+        plt.ylabel('M(t)')
+        #plt.legend(loc=4)
+        plt.grid()
+        #plt.savefig('Mt_vs_t.png', fmt='PNG', dpi=100)
+        plt.show()
 
-# Task 2b
-
-# Find the local maxima for M(t) vs t
-from scipy.signal import argrelextrema
-
-# Array containing the values of M
-Marray = state[:,1]
-
-# Get the indices of the maxima#
-# Index represents the no. of steps from start time
-maxindices = argrelextrema(Marray, np.greater)
-
-# Convert to hours
-xlist = []
-for item in maxindices[0]:
-    xlist.append(item*stepsize + starttime)
-print("xlist: ",xlist)
-print(xlist[1]-xlist[0])
+        # Task 2b
+        # Find the local maxima for M(t) vs t
+        
+        # Array containing the values of M
+        Marray = state[:,1]
+        
+        # Get the indices of the maxim
+        # Index represents the no. of steps from start time
+        maxindices = argrelextrema(Marray, np.greater)
+        
+        # Convert to hours
+        xlist = []
+        for item in maxindices[0]:
+            xlist.append(item*stepsize + starttime)
+        print("xlist: ",xlist)
+        Ps.append(xlist[1]-xlist[0])
+        print(xlist[1]-xlist[0])
+    return Ps
+        
+minkin = 0.005
+maxkin = 0.05
+stepsize = 0.003
+b = findPeriod(minkin, maxkin,stepsize,state0)
 
 """
 https://stackoverflow.com/questions/25891972/solve-a-ode-for-arrays-of-parameters-python
