@@ -97,23 +97,30 @@ def findPeriod(minkin, maxkin,stepsize,state0):
         # Find the local maxima for M(t) vs t
         
         # Array containing the values of M
-        Marray = state[:,1]
+        Farray = state[:,1]
         
         # Get the indices of the maxima
         # Index represents the no. of steps from start time
-        maxindices = argrelextrema(Marray, np.greater)
+        maxindices = argrelextrema(Farray, np.greater)
         
         # Convert to hours
         xlist = []
         for item in maxindices[0]:
             xlist.append(item*h + starttime)
-            
+           
+        # List of all timepoints where M(t) is maximum
         print("xlist: ",xlist)
-        print("Period: ")
+
+        # Get the differences between values
+        differences = np.diff(xlist)
         
-        # Append a tuple of (kin, calculated period)
-        Ps.append((x,xlist[1]-xlist[0]))
-        #print(xlist[1]-xlist[0])
+        # Get the mean period
+        meanP = np.average(differences)
+    
+        # Append a tuple of (kin, mean period)
+        Ps.append((x,meanP))
+    
+    # Return list of tuples of (kin value, mean Period)
     return Ps
         
 minkin = 0.01
