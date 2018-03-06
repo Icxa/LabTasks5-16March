@@ -8,7 +8,7 @@ Created on Mon Mar  5 22:04:51 2018
 import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
-import scipy.optimize as optimize
+#import scipy.optimize as optimize
 
 # https://www.gribblelab.org/compneuro/2_Modelling_Dynamical_Systems.html
 
@@ -42,7 +42,11 @@ def Period(state,t):
   return [dM, dFc, dFn]
 
 state0 = [0.6, 0.4, 0.4]
-t = np.arange(0.0, 100, 0.01)
+stepsize = 0.01
+starttime = 0.0
+endtime = 100
+t = np.arange(starttime, endtime, stepsize)
+numsteps = (endtime - starttime)/stepsize
 
 state = odeint(Period, state0, t)
 
@@ -55,7 +59,7 @@ plt.xlabel('F(t)')
 plt.ylabel('M(t)')
 #plt.legend(loc=4)
 plt.grid()
-plt.savefig( 'Mt_vs_Ft.png', fmt='PNG', dpi=100 )
+plt.savefig('Mt_vs_Ft.png', fmt='PNG', dpi=100)
 
 # Plot the M(t) vs t
 plt.figure(2)
@@ -66,7 +70,7 @@ plt.xlabel('t')
 plt.ylabel('M(t)')
 #plt.legend(loc=4)
 plt.grid()
-plt.savefig( 'Mt_vs_t.png', fmt='PNG', dpi=100 )
+plt.savefig('Mt_vs_t.png', fmt='PNG', dpi=100)
 
 # Task 2b
 
