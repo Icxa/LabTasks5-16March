@@ -61,6 +61,7 @@ def findPeriod(minkin, maxkin,stepsize,state0):
 
     Ps = []
     state0 = state0
+    # Step size = increments of kin
     stepsize = stepsize
     kinvalues = np.arange(minkin,maxkin,stepsize)
     
