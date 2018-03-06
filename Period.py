@@ -42,18 +42,37 @@ def Period(state,t):
   return [dM, dFc, dFn]
 
 state0 = [0.6, 0.4, 0.4]
-t = np.arange(0.0, 60, 0.01)
+t = np.arange(0.0, 100, 0.01)
 
 state = odeint(Period, state0, t)
 
-plt.plot(state[:,0],state[:,1],label='approximation')
+# Plot the M(t) vs F(t)
+plt.figure(1)
+plt.plot(state[:,0],state[:,1])
 #plt.plot(t, y(t), label='exact' )
-#plt.title( "Euler's Method Example, N="+str(N) )
+plt.title("Goldbeter Model")
 plt.xlabel('F(t)') 
 plt.ylabel('M(t)')
-plt.legend(loc=4)
+#plt.legend(loc=4)
 plt.grid()
-plt.savefig( 'euler_example.png', fmt='PNG', dpi=100 )
+plt.savefig( 'Mt_vs_Ft.png', fmt='PNG', dpi=100 )
+
+# Plot the M(t) vs t
+plt.figure(2)
+plt.plot(t,state[:,0])
+#plt.plot(t, y(t), label='exact' )
+plt.title("Goldbeter Model")
+plt.xlabel('t') 
+plt.ylabel('M(t)')
+#plt.legend(loc=4)
+plt.grid()
+plt.savefig( 'Mt_vs_t.png', fmt='PNG', dpi=100 )
+
+# Find the local maxima for M(t) vs t
+from scipy.signal import argrelextrema
+Marray = state[:,1]
+# Get the indices of the maxima
+maxindices = argrelextrema(Marray, np.greater)
 
 """
 https://stackoverflow.com/questions/25891972/solve-a-ode-for-arrays-of-parameters-python
@@ -78,4 +97,15 @@ argrelextrema(x, np.greater)
 
 # for local minima
 argrelextrema(x, np.less)
+
+plt.figure(2)
+# Plot the M(t) vs t
+plt.plot(t,state[:,0],label='approximation')
+#plt.plot(t, y(t), label='exact' )
+#plt.title( "Euler's Method Example, N="+str(N) )
+plt.xlabel('t') 
+plt.ylabel('M(t)')
+plt.legend(loc=4)
+plt.grid()
+plt.savefig( 'Mt_vs_t.png', fmt='PNG', dpi=100 )
 """
