@@ -53,6 +53,12 @@ numsteps = (endtime - starttime)/stepsize
 # Function for finding the kin value that produces a period of P = 21.5
 def findPeriod(minkin, maxkin,stepsize,state0):
     
+    h = 0.01
+    starttime = 0.0
+    endtime = 100
+    t = np.arange(starttime, endtime, h)
+    #numsteps = (endtime - starttime)/h
+
     Ps = []
     state0 = state0
     stepsize = stepsize
@@ -72,7 +78,7 @@ def findPeriod(minkin, maxkin,stepsize,state0):
         plt.ylabel('M(t)')
         #plt.legend(loc=4)
         plt.grid()
-        plt.show()
+        #plt.show()
         #plt.savefig('Mt_vs_Ft.png', fmt='PNG', dpi=100)
         
         # Plot the M(t) vs t
@@ -85,7 +91,7 @@ def findPeriod(minkin, maxkin,stepsize,state0):
         #plt.legend(loc=4)
         plt.grid()
         #plt.savefig('Mt_vs_t.png', fmt='PNG', dpi=100)
-        plt.show()
+        #plt.show()
 
         # Task 2b
         # Find the local maxima for M(t) vs t
@@ -93,22 +99,24 @@ def findPeriod(minkin, maxkin,stepsize,state0):
         # Array containing the values of M
         Marray = state[:,1]
         
-        # Get the indices of the maxim
+        # Get the indices of the maxima
         # Index represents the no. of steps from start time
         maxindices = argrelextrema(Marray, np.greater)
         
         # Convert to hours
         xlist = []
         for item in maxindices[0]:
-            xlist.append(item*stepsize + starttime)
+            xlist.append(item*h + starttime)
+            
         print("xlist: ",xlist)
+        print("Period: ")
         Ps.append(xlist[1]-xlist[0])
         print(xlist[1]-xlist[0])
     return Ps
         
-minkin = 0.005
-maxkin = 0.05
-stepsize = 0.003
+minkin = 0.01
+maxkin = 0.06
+stepsize = 0.001
 b = findPeriod(minkin, maxkin,stepsize,state0)
 
 """
