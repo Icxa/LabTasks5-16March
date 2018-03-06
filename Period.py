@@ -68,11 +68,24 @@ plt.ylabel('M(t)')
 plt.grid()
 plt.savefig( 'Mt_vs_t.png', fmt='PNG', dpi=100 )
 
+# Task 2b
+
 # Find the local maxima for M(t) vs t
 from scipy.signal import argrelextrema
+
+# Array containing the values of M
 Marray = state[:,1]
-# Get the indices of the maxima
+
+# Get the indices of the maxima#
+# Index represents the no. of steps from start time
 maxindices = argrelextrema(Marray, np.greater)
+
+# Convert to hours
+xlist = []
+for item in maxindices[0]:
+    xlist.append(item*stepsize + starttime)
+print("xlist: ",xlist)
+print(xlist[1]-xlist[0])
 
 """
 https://stackoverflow.com/questions/25891972/solve-a-ode-for-arrays-of-parameters-python

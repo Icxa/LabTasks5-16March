@@ -97,6 +97,7 @@ plt.grid()
 plt.savefig('euler_example_100steps.png', fmt='PNG', dpi=100)
 
 
+
 """
 
 # time intervals
