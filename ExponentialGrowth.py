@@ -43,7 +43,7 @@ a = 0
 b = 150
  
 # Number of steps
-nsteps = 1000
+nsteps = 100
 
 # Carrying capacity
 K = 189.4
@@ -76,7 +76,7 @@ for i in range(1,nsteps+1):
 def y(t):
     return K / (1 + (((K-5.3)/5.3)*np.exp(-r*t)))
 
-#plt.plot(t, narray, label='approximation' )
+plt.plot(t, narray, label='approximation')
 plt.plot(t, y(t), label='exact' )
 #plt.title( "Euler's Method Example, N="+str(N) )
 plt.xlabel('t') 
