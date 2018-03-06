@@ -8,6 +8,7 @@ Created on Mon Mar  5 22:04:51 2018
 import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
+import scipy.optimize as optimize
 
 # https://www.gribblelab.org/compneuro/2_Modelling_Dynamical_Systems.html
 
@@ -20,14 +21,14 @@ def Period(state,t):
 
   # these are our constants
   
-  Vs = 1.6
+  Vs = 2.0
   Vm = 1.5
   Vd = 1.0
   ks = 0.5
   K = .2
   Km = 0.15
   Kd = 0.15
-  kin = 0.02
+  kin = 0.06
   kout = 0.1
   n = 4 #Hill number
   
@@ -40,12 +41,12 @@ def Period(state,t):
   # return the state derivatives
   return [dM, dFc, dFn]
 
-state0 = [2.0, 3.0, 4.0]
-t = np.arange(0.0, 30.0, 0.01)
+state0 = [0.6, 0.4, 0.4]
+t = np.arange(0.0, 90, 0.01)
 
 state = odeint(Period, state0, t)
 
-plt.plot(state[:,1]+ state[:,2],state[:,0],label='approximation')
+plt.plot(t,state[:,1],label='approximation')
 #plt.plot(t, y(t), label='exact' )
 #plt.title( "Euler's Method Example, N="+str(N) )
 plt.xlabel('F(t)') 
@@ -65,4 +66,16 @@ ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
 show()
+
+#FINDING LOCAL EXTREMA
+import numpy as np
+from scipy.signal import argrelextrema
+
+x = np.random.random(12)
+
+# for local maxima
+argrelextrema(x, np.greater)
+
+# for local minima
+argrelextrema(x, np.less)
 """
