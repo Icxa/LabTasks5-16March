@@ -17,7 +17,6 @@ def Period12h12h(state,t,Vs):
   Fn = state[2]
   
   # Constants/Parameters
-  
   Vm = 1.5
   Vd = 1.0
   ks = 0.5
@@ -49,8 +48,7 @@ def Period(state,t):
   Fc = state[1]
   Fn = state[2]
 
-  # these are our constants
-  
+  # Constants/Parameters
   Vs = 2.0
   Vm = 1.5
   Vd = 1.0
@@ -62,13 +60,13 @@ def Period(state,t):
   kout = 0.1
   n = 4 #Hill number
   
-  # compute state derivatives
+  # Compute state derivatives
   
   dM = (Vs*(K**n))/(K**n + Fn**n) - (Vm*M/(Km+M))
   dFc = ks*M - (Vd*(Fc/(Kd+Fc))) - (kin*Fc) + (kout*Fc)
   dFn = kin*Fc - kout*Fn
 
-  # return the state derivatives
+  # Return the state derivatives
   return [dM, dFc, dFn]
 
 
@@ -78,39 +76,40 @@ def findPeriod(state0):
     h = 0.01
     starttime = 0.0
     endtime = 100
+    # Each t point is a step through time in the plot
+    # the value of t is an index, not an absolute value in hours
+    # Here, len(t) = (end-start)/stepsize = 100/0.01 = 10,000
     t = np.arange(starttime, endtime, h)
-    #numsteps = (endtime - starttime)/h
 
+    # Get inital values for M, Fc, and Fn
     state0 = state0
-    #stepsize = stepsize
 
     # Solve the equations
+    # State[0] --> M
+    # State[1] --> Fc
+    # State[2] --> Fn
     state = odeint(Period, state0, t)
 
     # Plot the M(t) vs F(t)
     plt.figure(1)
     plt.plot(state[:,0],state[:,1])
-    #plt.plot(t, y(t), label='exact' )
     plt.title("Goldbeter Model")
     plt.xlabel('F(t)') 
     plt.ylabel('M(t)')
-    #plt.legend(loc=4)
     plt.grid()
-    #plt.show()
-    #plt.savefig('Mt_vs_Ft.png', fmt='PNG', dpi=100)
-    """
+    plt.show()
+    plt.savefig('Mt_vs_Ft.png', fmt='PNG', dpi=100)
+    
     # Plot the M(t) vs t
     plt.figure(2)
     plt.plot(t,state[:,0])
-    #plt.plot(t, y(t), label='exact' )
     plt.title("Goldbeter Model")
     plt.xlabel('t') 
     plt.ylabel('M(t)')
-    #plt.legend(loc=4)
     plt.grid()
-    #plt.savefig('Mt_vs_t.png', fmt='PNG', dpi=100)
-    #plt.show()
-    """
+    plt.savefig('Mt_vs_t.png', fmt='PNG', dpi=100)
+    plt.show()
+    
     # Array containing the values of M
     Farray = state[:,1]
     
@@ -136,8 +135,7 @@ state0 = [0.6, 0.4, 0.4]
 results = findPeriod(state0)
 """
 
-# Function for finding the minimum Vs step increase 
-# that produces a period of P = 21.5
+# Function for finding the minimum Vs step increase
 def findVsStep(state0):
     
     # Time parameters
@@ -152,11 +150,9 @@ def findVsStep(state0):
     # Split the timepoints into 12-hour arrays
     # Each value is a number in hours
     wheretosplit = [i for i in range(0,endtime,12)][1:]
-    
-    """
-    wheretosplit
-    Out[429]: [12, 24, 36, 48]
-    """
+
+    # wheretosplit
+    # Out[429]: [12, 24, 36, 48]
     
     # Convert to specific indices in the t array
     indices = [int(x/h) for x in wheretosplit]
@@ -339,5 +335,145 @@ def findVsStep(state0):
     return Ps
     """
 
-state0 = [0.6, 0.4, 0.4]
-results = findVsStep(state0)
+# VERSION 2
+# Function for finding the minimum Vs step increase
+def findVsStep2(state0, step):
+    
+    # Time parameters
+    h = 0.01 # Stepsize for time
+    starttime = 0.0
+    endtime = 100
+    # Each t point is a step through time in the plot
+    # the value of t is an index, not an absolute value in hours
+    # Here, len(t) = (end-start)/stepsize = 100/0.01 = 10,000
+    t = np.arange(starttime, endtime, h)
+    
+    # Split the timepoints into 12-hour arrays
+    # Each value is a number in hours
+    wheretosplit = [i for i in range(0,endtime,12)][1:]
+
+    # wheretosplit
+    # Out[429]: [12, 24, 36, 48]
+    
+    # Convert to specific indices in the t array
+    indices = [int(x/h) for x in wheretosplit]
+    print("Indices",indices)
+    # Array of splitted timepoints based on 12 h cycle
+    timearrays= np.split(t,indices)
+    
+    # Vs is the transcription rate
+    step = step
+    vs0 = 1.5
+    vs1 = vs0 + step
+    Vs = vs0
+    
+    # Create the Vs vector (alternating vs values through light/dark)
+    # For plotting later
+    # numsteps = (endtime - starttime)/stepsize
+    vsarray = []
+    s = starttime
+    stepsizeh = h
+    for i in range(len(wheretosplit)):
+        #Convert to num
+        print("WHERE TO SPLIT",wheretosplit[i])
+        numsteps = int((wheretosplit[i]-s)/stepsizeh)
+        #print(numsteps)
+        if (i%2) == 0:
+            curvs = vs0
+        else:
+            curvs = vs1
+        
+        s = wheretosplit[i]
+        currentvs = [curvs]*numsteps
+        #print("Currentvsarray",len(currentvs))
+        #print(currentvs)
+        vsarray = vsarray + currentvs
+        #currentvs = [i for i in range(int(numsteps))]
+        #print("Currentvs",currentvs)
+        # Current end time is next start time
+    lastvalues = endtime - wheretosplit[-1]
+    print("Lastvalues",lastvalues)
+    numsteps = int((endtime - wheretosplit[-1])/stepsizeh)
+    last = len(wheretosplit)+1
+    if (last%2==0):
+        lastarray = [vs0]*numsteps
+    else:
+        lastarray = [vs1]*numsteps
+    vsarray = vsarray+lastarray
+
+    # Numpy array where all results are appended
+    # Initialize empty numpy array
+    allstates = np.empty(shape=(0,3))
+    #print(len(allstates))
+    
+    currstate = state0
+    
+    # Calculate stepwise 
+    for x in enumerate(timearrays):
+  
+        # 12 h:12 h light:dark conditions
+        if (x[0] % 2 == 0):
+            # Even --> dark conditions
+            Vs = vs0
+        else:
+            # Odd --> light conditions
+            Vs = vs1
+        
+        # Solve the equations
+        # x[1] is the current timearray
+        state = odeint(Period12h12h, currstate, x[1], args=(Vs,))
+        #print(state,len(state))
+        print(allstates.shape)
+        #print(state.shape)
+        # Plot the M(t) vs F(t)
+        plt.figure(1)
+        plt.plot(state[:,0],state[:,1])
+        #plt.plot(t, y(t), label='exact' )
+        plt.title("Goldbeter Model")
+        plt.xlabel('F(t)') 
+        plt.ylabel('M(t)')
+        #plt.legend(loc=4)
+        plt.grid()
+        #plt.show()
+        #plt.savefig('Mt_vs_Ft.png', fmt='PNG', dpi=100)
+        
+        # Update the current state
+        currstate = state[-1]
+        
+        allstates = np.concatenate((allstates,state))
+        
+    # Get the values of M
+    Marray = allstates[:,1]
+    
+    # Get the indices of the maxima#
+    # Index represents the no. of steps from start time
+    maxindices = argrelextrema(Marray, np.greater)
+    
+    # Convert to hours
+    xlist = []
+    for item in maxindices[0]:
+        xlist.append(item*h + starttime)
+        
+    # Get the differences between values
+    differences = np.diff(xlist)
+    
+    # Get the mean period
+    meanP = np.average(differences)
+    print("MEANP",meanP)
+    
+    # Final added data
+    print(allstates.shape)
+    plt.figure(2)
+    plt.plot(allstates[:,0],allstates[:,1])
+    plt.figure(3)
+    plt.plot(t,allstates[:,0])
+    plt.plot(t,allstates[:,1])
+    plt.plot(t,allstates[:,2])
+    plt.plot(t,vsarray)
+    #plt.plot(allstates[:,0],allstates[:,1])
+
+    #print(vsarray)       
+
+step = 0.04
+state0 = [0.1, 0.1, 0.1]
+results = findVsStep2(state0,step)
