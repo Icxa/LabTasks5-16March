@@ -141,19 +141,28 @@ results = findPeriod(state0)
 def findVsStep(state0):
     
     # Time parameters
-    h = 0.01
+    h = 0.01 # Stepsize for time
     starttime = 0.0
     endtime = 100
+    # Each t point is a step through time in the plot
+    # the value of t is an index, not an absolute value in hours
+    # Here, len(t) = (end-start)/stepsize = 100/0.01 = 10,000
     t = np.arange(starttime, endtime, h)
     
     # Split the timepoints into 12-hour arrays
+    # Each value is a number in hours
     wheretosplit = [i for i in range(0,endtime,12)][1:]
+    
+    """
+    wheretosplit
+    Out[429]: [12, 24, 36, 48]
+    """
+    
     # Convert to specific indices in the t array
     indices = [int(x/h) for x in wheretosplit]
+    print("Indices",indices)
     # Array of splitted timepoints based on 12 h cycle
     timearrays= np.split(t,indices)
-    
-    currstate = state0
     
     # Vs is the transcription rate
     step = 0.5
@@ -161,6 +170,34 @@ def findVsStep(state0):
     vs1 = vs0 + step
     Vs = vs0
     
+    # Create the Vs vector (alternating vs values through light/dark)
+    # For plotting later
+    # numsteps = (endtime - starttime)/stepsize
+    vsarray = []
+    s = starttime
+    stepsizeh = h
+    for i in range(len(wheretosplit)):
+        #Convert to num
+        print("WHERE TO SPLIT",wheretosplit[i])
+        numsteps = int((wheretosplit[i]-s)/stepsizeh)
+        #print(numsteps)
+        if (i%2) == 0:
+            curvs = vs0
+        else:
+            curvs = vs1
+        
+        s = wheretosplit[i]
+        currentvs = [curvs]*numsteps
+        #print("Currentvsarray",len(currentvs))
+        #print(currentvs)
+        vsarray = vsarray + currentvs
+        #currentvs = [i for i in range(int(numsteps))]
+        #print("Currentvs",currentvs)
+        # Current end time is next start time
+        
+        
+    currstate = state0
+
     # Numpy array where all results are appended
     # Initialize empty numpy array
     allstates = np.empty(shape=(0,3))
@@ -216,7 +253,10 @@ def findVsStep(state0):
     # Final added data
     print(allstates.shape)
     plt.figure(2)
-    plt.plot(allstates[:,0],allstates[:,1])        
+    plt.plot(allstates[:,0],allstates[:,1])
+    #plt.plot(allstates[:,0],allstates[:,1])
+
+    print(vsarray)           
      
     """
     # Get initial state
