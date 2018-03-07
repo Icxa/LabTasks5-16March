@@ -9,6 +9,7 @@ from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 from scipy.signal import argrelextrema
 
+
 def Period12h12h(state,t,Vs):
   # unpack the initial state vector
   M = state[0]
@@ -41,6 +42,35 @@ def Period12h12h(state,t,Vs):
 #state0 = [0.6, 0.4, 0.4]
 #tryp = Period12h12h(state0)
 
+def Period(state,t):
+  # unpack the initial state vector
+  
+  M = state[0]
+  Fc = state[1]
+  Fn = state[2]
+
+  # these are our constants
+  
+  Vs = 2.0
+  Vm = 1.5
+  Vd = 1.0
+  ks = 0.5
+  K = .2
+  Km = 0.15
+  Kd = 0.15
+  kin = 0.02
+  kout = 0.1
+  n = 4 #Hill number
+  
+  # compute state derivatives
+  
+  dM = (Vs*(K**n))/(K**n + Fn**n) - (Vm*M/(Km+M))
+  dFc = ks*M - (Vd*(Fc/(Kd+Fc))) - (kin*Fc) + (kout*Fc)
+  dFn = kin*Fc - kout*Fn
+
+  # return the state derivatives
+  return [dM, dFc, dFn]
+
 
 # Function for finding the kin value that produces a period of P = 21.5
 def findPeriod(state0):
@@ -55,7 +85,7 @@ def findPeriod(state0):
     #stepsize = stepsize
 
     # Solve the equations
-    state = odeint(Period12h12h, state0, t)
+    state = odeint(Period, state0, t)
 
     # Plot the M(t) vs F(t)
     plt.figure(1)
@@ -101,11 +131,10 @@ def findPeriod(state0):
     
     return meanP
 
-"""    
+"""  
 state0 = [0.6, 0.4, 0.4]
 results = findPeriod(state0)
 """
-
 
 # Function for finding the minimum Vs step increase 
 # that produces a period of P = 21.5
@@ -131,6 +160,11 @@ def findVsStep(state0):
     vs0 = 1.5
     vs1 = vs0 + step
     Vs = vs0
+    
+    # Numpy array where all results are appended
+    # Initialize empty numpy array
+    allstates = np.empty(shape=(0,3))
+    #print(len(allstates))
         
     # Calculate stepwise 
     for x in enumerate(timearrays):
@@ -146,8 +180,9 @@ def findVsStep(state0):
         # Solve the equations
         # x[1] is the current timearray
         state = odeint(Period12h12h, currstate, x[1], args=(Vs,))
-        print(state,len(state))
-        print()
+        #print(state,len(state))
+        print(allstates.shape)
+        #print(state.shape)
         # Plot the M(t) vs F(t)
         plt.figure(1)
         plt.plot(state[:,0],state[:,1])
@@ -163,6 +198,8 @@ def findVsStep(state0):
         # Update the current state
         currstate = state[-1]
         
+        allstates = np.concatenate((allstates,state))
+        
         """
         # Plot the M(t) vs t
         plt.figure(2)
@@ -176,8 +213,10 @@ def findVsStep(state0):
         #plt.savefig('Mt_vs_t.png', fmt='PNG', dpi=100)
         #plt.show()
         """
-
-        
+    # Final added data
+    print(allstates.shape)
+    plt.figure(2)
+    plt.plot(allstates[:,0],allstates[:,1])        
      
     """
     # Get initial state
