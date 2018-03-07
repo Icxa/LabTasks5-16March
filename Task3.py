@@ -263,7 +263,9 @@ def findVsStep(state0):
     plt.figure(2)
     plt.plot(allstates[:,0],allstates[:,1])
     plt.figure(3)
-    #plt.plot(allstates[:,0],allstates[:,1])
+    plt.plot(t,allstates[:,0])
+    plt.plot(t,allstates[:,1])
+    plt.plot(t,allstates[:,2])
     plt.plot(t,vsarray)
     #plt.plot(allstates[:,0],allstates[:,1])
 
