@@ -194,15 +194,23 @@ def findVsStep(state0):
         #currentvs = [i for i in range(int(numsteps))]
         #print("Currentvs",currentvs)
         # Current end time is next start time
-        
-        
-    currstate = state0
+    lastvalues = endtime - wheretosplit[-1]
+    print("Lastvalues",lastvalues)
+    numsteps = int((endtime - wheretosplit[-1])/stepsizeh)
+    last = len(wheretosplit)+1
+    if (last%2==0):
+        lastarray = [vs0]*numsteps
+    else:
+        lastarray = [vs1]*numsteps
+    vsarray = vsarray+lastarray
 
     # Numpy array where all results are appended
     # Initialize empty numpy array
     allstates = np.empty(shape=(0,3))
     #print(len(allstates))
-        
+    
+    currstate = state0
+    
     # Calculate stepwise 
     for x in enumerate(timearrays):
   
@@ -254,6 +262,9 @@ def findVsStep(state0):
     print(allstates.shape)
     plt.figure(2)
     plt.plot(allstates[:,0],allstates[:,1])
+    plt.figure(3)
+    #plt.plot(allstates[:,0],allstates[:,1])
+    plt.plot(t,vsarray)
     #plt.plot(allstates[:,0],allstates[:,1])
 
     print(vsarray)           
