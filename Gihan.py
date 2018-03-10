@@ -249,7 +249,7 @@ viewResultForPeriodsForProteinWithVarying_kin(targetkinresults)
 """
 
 """
-TASK 3
+TASK 3 AND TASK 4
 """
 
 # Function for finding period with specified Vs step size
@@ -316,59 +316,14 @@ def findVsStep(state0, light, dark):
     for currentstep in allsteps:
         
         state = odeint(periodVaryingVsStep, state0, t, args=(currentstep,light,dark))
-        Marray = state[:,0]
         Fcarray = state[:,1]
-        Fnarray = state[:,2]
         
         # Calculate the mean period based on Fc data
         meanP,xlist,maxindices,quartertimes,quartervalues,allqpositions = getMeanPeriodandPeakInfo(Fcarray,t)
         #print("Vs step size and period: ", ("%.4f" % currentstep, "%.4f" % meanP))
 
         periods.append("%.4f" % meanP)
-        """
-        # Plot the M(t) vs F(t)
-        plt.figure(1)
-        plt.plot(state[:,0],state[:,1])
-        #plt.plot(t, y(t), label='exact' )
-        plt.title("Goldbeter Model")
-        plt.xlabel('F(t)') 
-        plt.ylabel('M(t)')
-        #plt.legend(loc=4)
-        plt.grid()
-        #plt.show()
-        #plt.savefig('Mt_vs_Ft.png', fmt='PNG', dpi=100)
-        
-        # Update the current state
-        currstate = state[-1]
-        
-        allstates = np.concatenate((allstates,state))
 
-        
-        # Plot the M(t) vs t
-        plt.figure(2)
-        plt.plot(t,state[:,0])
-        #plt.plot(t, y(t), label='exact' )
-        plt.title("Goldbeter Model")
-        plt.xlabel('t') 
-        plt.ylabel('M(t)')
-        #plt.legend(loc=4)
-        plt.grid()
-        #plt.savefig('Mt_vs_t.png', fmt='PNG', dpi=100)
-        #plt.show()
-        
-        # Final added data
-        print(allstates.shape)
-        plt.figure(2)
-        plt.plot(allstates[:,0],allstates[:,1])
-        plt.figure(3)
-        plt.plot(t,allstates[:,0])
-        plt.plot(t,allstates[:,1])
-        plt.plot(t,allstates[:,2])
-        plt.plot(t,vsarray)
-        #plt.plot(allstates[:,0],allstates[:,1])
-    
-        print(vsarray)           
-        """
     return allsteps, periods
 
 
@@ -378,7 +333,7 @@ allsteps, periods = findVsStep(state0, 12.0, 12.0)
 # Plot
 plt.figure(1)
 plt.plot(allsteps,periods)
-plt.title('Center Title')
+plt.title('Neurospora Clock: 12 h/6 12 light/dark Conditions')
 plt.xlabel("Minimum step size of Vs")
 plt.ylabel("Mean Period")
 plt.show()
@@ -389,7 +344,7 @@ allsteps18, periods18 = findVsStep(state0, 18.0, 6.0)
 # Plot
 plt.figure(2)
 plt.plot(allsteps18,periods18)
-plt.title('Center Title')
+plt.title('Neurospora Clock: 18 h/6 h light/dark Conditions')
 plt.xlabel("Minimum step size of Vs")
 plt.ylabel("Mean Period")
 plt.show()
