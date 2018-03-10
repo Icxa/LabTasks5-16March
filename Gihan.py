@@ -246,7 +246,6 @@ results = findPeriod(minkin, maxkin, stepsize, state0, timeGap)
 targetkinresults= results[8]
 #print(len(resultsM))
 viewResultForPeriodsForProteinWithVarying_kin(targetkinresults)
-#viewResultForPeriodsForProteinWithVarying_kin(results)
 """
 
 """
@@ -287,12 +286,16 @@ def periodVaryingVsStep(state, t, step, light, dark):
 
 
 # Function for finding the minimum Vs step increase
+# That produces a period of 24 h
+# With 12 h/12 h light/dark conditions
+# Result is the step size of 0.032
 def findVsStep(state0):
     
     # Time parameters
     h = 0.01 # Stepsize for time
     starttime = 0.0
     endtime = 100
+    
     # Each t point is a step through time in the plot
     # the value of t is an index, not an absolute value in hours
     # Here, len(t) = (end-start)/stepsize = 100/0.01 = 10,000
@@ -304,11 +307,11 @@ def findVsStep(state0):
     
     # Limits of the step size
     minstep = 0.0
-    maxstep = 1.0
-    step = 0.01
+    maxstep = .5
+    step = 0.004
     allsteps = np.arange(minstep,maxstep,step)
-    print("ALLSTEPS",allsteps)
-    # Results array
+
+    # Store everything in a results array
     results = []
     
     # Iterate through all step sizes
@@ -319,9 +322,11 @@ def findVsStep(state0):
         Fcarray = state[:,1]
         Fnarray = state[:,2]
         
+        # Calculate the mean period based on Fc data
         meanP,xlist,maxindices,quartertimes,quartervalues,allqpositions = getMeanPeriodandPeakInfo(Fcarray,t)
-        print("currentstep and period", (currentstep, meanP))
-        #print("MEAN PERIOD",)
+        print("Vs step size and period: ", ("%.4f" % currentstep, "%.4f" % meanP))
+
+        results.append(("%.4f" % currentstep, "%.4f" % meanP))
         """
         # Plot the M(t) vs F(t)
         plt.figure(1)
@@ -366,5 +371,6 @@ def findVsStep(state0):
     
         print(vsarray)           
         """
+    return results
         
 findVsStep(state0)
