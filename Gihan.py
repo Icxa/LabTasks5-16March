@@ -287,9 +287,7 @@ def periodVaryingVsStep(state, t, step, light, dark):
 
 # Function for finding the minimum Vs step increase
 # That produces a period of 24 h
-# With 12 h/12 h light/dark conditions
-# Result is the step size of 0.032
-def findVsStep(state0):
+def findVsStep(state0, light, dark):
     
     # Time parameters
     h = 0.01 # Stepsize for time
@@ -302,17 +300,17 @@ def findVsStep(state0):
     t = np.arange(starttime, endtime, h)
     
     # Lighting conditions/simuli
-    light = 12
-    dark = 12
+    light = light
+    dark = dark
     
     # Limits of the step size
     minstep = 0.0
     maxstep = .5
     step = 0.004
     allsteps = np.arange(minstep,maxstep,step)
-
-    # Store everything in a results array
-    results = []
+    
+    # Store period in array
+    periods = []
     
     # Iterate through all step sizes
     for currentstep in allsteps:
@@ -324,9 +322,9 @@ def findVsStep(state0):
         
         # Calculate the mean period based on Fc data
         meanP,xlist,maxindices,quartertimes,quartervalues,allqpositions = getMeanPeriodandPeakInfo(Fcarray,t)
-        print("Vs step size and period: ", ("%.4f" % currentstep, "%.4f" % meanP))
+        #print("Vs step size and period: ", ("%.4f" % currentstep, "%.4f" % meanP))
 
-        results.append(("%.4f" % currentstep, "%.4f" % meanP))
+        periods.append("%.4f" % meanP)
         """
         # Plot the M(t) vs F(t)
         plt.figure(1)
@@ -371,6 +369,27 @@ def findVsStep(state0):
     
         print(vsarray)           
         """
-    return results
-        
-findVsStep(state0)
+    return allsteps, periods
+
+
+# Try light of 12 h and dark of 12 h
+# Answer: minimum step size of .032
+allsteps, periods = findVsStep(state0, 12.0, 12.0)
+# Plot
+plt.figure(1)
+plt.plot(allsteps,periods)
+plt.title('Center Title')
+plt.xlabel("Minimum step size of Vs")
+plt.ylabel("Mean Period")
+plt.show()
+
+# Try light of 18 h and dark of 6 h
+# Answer: minimum step size of 0.12
+allsteps18, periods18 = findVsStep(state0, 18.0, 6.0)
+# Plot
+plt.figure(2)
+plt.plot(allsteps18,periods18)
+plt.title('Center Title')
+plt.xlabel("Minimum step size of Vs")
+plt.ylabel("Mean Period")
+plt.show()
