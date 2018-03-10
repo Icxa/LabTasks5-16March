@@ -121,11 +121,10 @@ def getMeanPeriodandPeakInfo(array,t):
     q1lastv = (maxindices[0][-1] + peakdiff[-1]*0.25).astype(int) if ((m//(peakdiff[-1]*0.25)!=0)) else 0
     q2lastv = (maxindices[0][-1] + peakdiff[-1]*0.5).astype(int)  if ((m//(peakdiff[-1]*0.5)!=0)) else 0
     q3lastv = (maxindices[0][-1] + peakdiff[-1]*0.75).astype(int)  if ((m//(peakdiff[-1]*0.75)!=0)) else 0
-    print("this",q1lastv)
-    print(q2lastv)
-    print(q3lastv)
+    #print("this",q1lastv)
+    #print(q2lastv)
+    #print(q3lastv)
     allqpositions = np.concatenate((q0value.astype(int),q1value.astype(int),q2value.astype(int),q3value.astype(int),np.array([q1lastv]),np.array([q2lastv]),np.array([q3lastv])))
-    #print("lenallqpositions",len(allqpositions))
     q0value = array[q0value.astype(int)]
     q1value = array[q1value.astype(int)]
     q2value = array[q2value.astype(int)]
@@ -133,7 +132,7 @@ def getMeanPeriodandPeakInfo(array,t):
     q1lastpos = np.array([t[q1lastv]])
     q2lastpos = np.array([t[q2lastv]])
     q3lastpos = np.array([t[q3lastv]])
-    print(q1lastpos)
+    #print(q1lastpos)
     q1lastv = np.array([array[q1lastv]])
     q2lastv = np.array([array[q2lastv]])
     q3lastv = np.array([array[q3lastv]])
@@ -241,60 +240,131 @@ stepsize = .01
 state0 = [0, 0, 0]
 timeGap = 0.001
 
-
+"""
 results = findPeriod(minkin, maxkin, stepsize, state0, timeGap)
 # Plot the results for the third kin value tested
-targetkinresults= results[2]
+targetkinresults= results[8]
 #print(len(resultsM))
 viewResultForPeriodsForProteinWithVarying_kin(targetkinresults)
 #viewResultForPeriodsForProteinWithVarying_kin(results)
+"""
 
 """
-def findPeriodBasedOnM(minkin, maxkin,stepsize,state0, timeGap):
+TASK 3
+"""
+
+# Function for finding period with specified Vs step size
+def periodVaryingVsStep(state, t, step, light, dark):
+    
+    # Unpack initial state vector
+    M = state[0] # mRNA concentration
+    Fc = state[1] # frequency protein synthesised in cytoplasm
+    Fn = state[2] # Successively built up protein concentration
+    
+    # Constants/Parmeters
+    step = step
+    Vs = 1.5
+    Vm = 1.5
+    Vd = 1.0
+    ks = 0.5
+    K = 0.2
+    Km = 0.15
+    Kd = 0.15
+    kin = 0.0244 # Use the kin that produces a period of 21.5 h
+    kout = 0.1
+    n = 4 #Hill number
+
+    # Specific Vs values depending on current time t
+    currentVs = Vs if t % (dark + light) < dark else Vs + step
+    
+    # Compute state derivatives w.r.t time
+    dM = (currentVs*(K**n))/(K**n+Fn**n)-(Vm*M/(Km+M))
+    dFc = ks*M - (Vd*(Fc/(Kd+Fc))) - (kin*Fc) + (kout*Fn)
+    dFn = kin*Fc - kout*Fn
+    
+    # Return state derivatives
+    return [dM, dFc, dFn]
+
+
+# Function for finding the minimum Vs step increase
+def findVsStep(state0):
+    
+    # Time parameters
+    h = 0.01 # Stepsize for time
     starttime = 0.0
-    endtime = 1000
-    t = np.arange(starttime, endtime, timeGap)
-    Ps = []
-    kinvalues = np.arange(minkin,maxkin,stepsize)
-    # Iterate through all the kin values
-    for x in kinvalues:
-        result_odeint = odeint(periodWithVarying_kin, state0, t, args=(x,))
-        # Array containing the values of M
-        Marray = result_odeint[:,0]
-        # Get the indices of the maxima
-        # Index represents the no. of steps from start time
-        maxindices = argrelextrema(Marray, np.greater)
-         # List of all timepoints where M(t) is maximum
-        xlist = []
-        if len(maxindices[0]) > 1:
-            for item in maxindices[0]:
-                xlist.append(t[item])
-        # Get the differences between values
-        differences = np.diff(xlist)
-        #print(differences)
-        # Get the mean period
-        meanP = np.average(differences)
-        #print(meanP)
-        if 21.48 < meanP < 21.53:
-            # Append a tuple of (kin, mean period)
-            Ps.append((x,meanP, result_odeint, t))
-    return Ps           
-
-def viewResultForPeriodsWithVarying_kin(results):
-    for result in results:
-        kin = result[0]
-        period = result[1]
-        result_odeint = result[2]
-        time = result[3]
-        print(kin, period)
-        viewCircadianClock(result_odeint)
-        viewProductConcentrationEvolution(result_odeint, time)
+    endtime = 100
+    # Each t point is a step through time in the plot
+    # the value of t is an index, not an absolute value in hours
+    # Here, len(t) = (end-start)/stepsize = 100/0.01 = 10,000
+    t = np.arange(starttime, endtime, h)
+    
+    # Lighting conditions/simuli
+    light = 12
+    dark = 12
+    
+    # Limits of the step size
+    minstep = 0.0
+    maxstep = 1.0
+    step = 0.01
+    allsteps = np.arange(minstep,maxstep,step)
+    print("ALLSTEPS",allsteps)
+    # Results array
+    results = []
+    
+    # Iterate through all step sizes
+    for currentstep in allsteps:
         
+        state = odeint(periodVaryingVsStep, state0, t, args=(currentstep,light,dark))
+        Marray = state[:,0]
+        Fcarray = state[:,1]
+        Fnarray = state[:,2]
+        
+        meanP,xlist,maxindices,quartertimes,quartervalues,allqpositions = getMeanPeriodandPeakInfo(Fcarray,t)
+        print("currentstep and period", (currentstep, meanP))
+        #print("MEAN PERIOD",)
+        """
+        # Plot the M(t) vs F(t)
+        plt.figure(1)
+        plt.plot(state[:,0],state[:,1])
+        #plt.plot(t, y(t), label='exact' )
+        plt.title("Goldbeter Model")
+        plt.xlabel('F(t)') 
+        plt.ylabel('M(t)')
+        #plt.legend(loc=4)
+        plt.grid()
+        #plt.show()
+        #plt.savefig('Mt_vs_Ft.png', fmt='PNG', dpi=100)
+        
+        # Update the current state
+        currstate = state[-1]
+        
+        allstates = np.concatenate((allstates,state))
 
-
-
-
-results = findPeriodBasedOnM(minkin, maxkin, stepsize, state0, timeGap)
-print(len(results))
-viewResultForPeriodsWithVarying_kin(results)
-"""
+        
+        # Plot the M(t) vs t
+        plt.figure(2)
+        plt.plot(t,state[:,0])
+        #plt.plot(t, y(t), label='exact' )
+        plt.title("Goldbeter Model")
+        plt.xlabel('t') 
+        plt.ylabel('M(t)')
+        #plt.legend(loc=4)
+        plt.grid()
+        #plt.savefig('Mt_vs_t.png', fmt='PNG', dpi=100)
+        #plt.show()
+        
+        # Final added data
+        print(allstates.shape)
+        plt.figure(2)
+        plt.plot(allstates[:,0],allstates[:,1])
+        plt.figure(3)
+        plt.plot(t,allstates[:,0])
+        plt.plot(t,allstates[:,1])
+        plt.plot(t,allstates[:,2])
+        plt.plot(t,vsarray)
+        #plt.plot(allstates[:,0],allstates[:,1])
+    
+        print(vsarray)           
+        """
+        
+findVsStep(state0)
