@@ -121,8 +121,11 @@ def getMeanPeriodandPeakInfo(array,t):
     q1value = maxindices[0][:-1] + peakdiff/4
     q2value = maxindices[0][:-1] + peakdiff/4*2
     q3value = maxindices[0][:-1] + peakdiff/4*3
+    q1last = array[(maxindices[0][-1]*0.25).astype(int)] if (m//(maxindices[0][-1]*0.25)!=0) else np.empty((0))
+    q2last = array[(maxindices[0][-1]*0.5).astype(int)] if (m//(maxindices[0][-1]*0.5)!=0) else np.empty((0))
+    q3last = array[(maxindices[0][-1]*0.75).astype(int)] if (m//(maxindices[0][-1]*0.75)!=0) else np.empty((0))
+    print("Q1LAST",q1last)
     allqpositions = np.concatenate((q0value.astype(int),q1value.astype(int),q2value.astype(int),q3value.astype(int)))
-    print("allpositions",allqpositions)
     q0value = array[q0value.astype(int)]
     q1value = array[q1value.astype(int)]
     q2value = array[q2value.astype(int)]
