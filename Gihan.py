@@ -113,23 +113,31 @@ def getMeanPeriodandPeakInfo(array,t):
     peakdiff = np.diff(maxindices[0])
 
     # Quarter values
-    print(len(t))
-    print("peakdiff/4",peakdiff/4)
-    print("MAX",(len(t)-maxindices[0][-1])//(peakdiff/4))
     m = len(t)-maxindices[0][-1]
     q0value = np.array([maxindices[0][0]]*3 * np.array([0.25,0.5,0.75]))
     q1value = maxindices[0][:-1] + peakdiff/4
     q2value = maxindices[0][:-1] + peakdiff/4*2
     q3value = maxindices[0][:-1] + peakdiff/4*3
-    q1last = array[(maxindices[0][-1]*0.25).astype(int)] if (m//(maxindices[0][-1]*0.25)!=0) else np.empty((0))
-    q2last = array[(maxindices[0][-1]*0.5).astype(int)] if (m//(maxindices[0][-1]*0.5)!=0) else np.empty((0))
-    q3last = array[(maxindices[0][-1]*0.75).astype(int)] if (m//(maxindices[0][-1]*0.75)!=0) else np.empty((0))
-    print("Q1LAST",q1last)
-    allqpositions = np.concatenate((q0value.astype(int),q1value.astype(int),q2value.astype(int),q3value.astype(int)))
+    q1lastv = (maxindices[0][-1] + peakdiff[-1]*0.25).astype(int) if ((m//(peakdiff[-1]*0.25)!=0)) else 0
+    q2lastv = (maxindices[0][-1] + peakdiff[-1]*0.5).astype(int)  if ((m//(peakdiff[-1]*0.5)!=0)) else 0
+    q3lastv = (maxindices[0][-1] + peakdiff[-1]*0.75).astype(int)  if ((m//(peakdiff[-1]*0.75)!=0)) else 0
+    print("this",q1lastv)
+    print(q2lastv)
+    print(q3lastv)
+    allqpositions = np.concatenate((q0value.astype(int),q1value.astype(int),q2value.astype(int),q3value.astype(int),np.array([q1lastv]),np.array([q2lastv]),np.array([q3lastv])))
+    #print("lenallqpositions",len(allqpositions))
     q0value = array[q0value.astype(int)]
     q1value = array[q1value.astype(int)]
     q2value = array[q2value.astype(int)]
     q3value = array[q3value.astype(int)]
+    q1lastpos = np.array([t[q1lastv]])
+    q2lastpos = np.array([t[q2lastv]])
+    q3lastpos = np.array([t[q3lastv]])
+    print(q1lastpos)
+    q1lastv = np.array([array[q1lastv]])
+    q2lastv = np.array([array[q2lastv]])
+    q3lastv = np.array([array[q3lastv]])
+    #print("allqpositions",allqpositions)
     
     # Get the mean period
     meanP = np.average(differences)
@@ -139,11 +147,14 @@ def getMeanPeriodandPeakInfo(array,t):
     q1 = xlist[:-1] + differences/4
     q2 = xlist[:-1] + differences*2/4
     q3 = xlist[:-1] + differences*3/4
-    #qlast = 
+    
+    #q1last = xlist[-1] + differences[-1]/4 if ((m//(maxindices[0][-1]*0.25)!=0)) else np.empty((0))
+    #q2last = xlist[-1] + differences[-1]/4*2 if ((m//(maxindices[0][-1]*0.5)!=0)) else np.empty((0))
+    #q3last = xlist[-1] + differences[-1]/4*3 if ((m//(maxindices[0][-1]*0.75)!=0)) else np.empty((0))
     
     # Array values for quarters
-    quartertimes = np.concatenate((q0,q1,q2,q3))
-    quartervalues = np.concatenate((q0value,q1value,q2value,q3value))
+    quartertimes = np.concatenate((q0,q1,q2,q3,q1lastpos,q2lastpos,q3lastpos))
+    quartervalues = np.concatenate((q0value,q1value,q2value,q3value,q1lastv,q2lastv,q3lastv))
     
     return meanP, xlist, maxindices, quartertimes, quartervalues, allqpositions
     
@@ -232,7 +243,8 @@ timeGap = 0.001
 
 
 results = findPeriod(minkin, maxkin, stepsize, state0, timeGap)
-targetkinresults= results[8]
+# Plot the results for the third kin value tested
+targetkinresults= results[2]
 #print(len(resultsM))
 viewResultForPeriodsForProteinWithVarying_kin(targetkinresults)
 #viewResultForPeriodsForProteinWithVarying_kin(results)
