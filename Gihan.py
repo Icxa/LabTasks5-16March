@@ -312,6 +312,9 @@ def findVsStep(state0, light, dark):
     # Store period in array
     periods = []
     
+    # Store the results with 
+    finalresults = []
+    
     # Iterate through all step sizes
     for currentstep in allsteps:
         
@@ -321,15 +324,18 @@ def findVsStep(state0, light, dark):
         # Calculate the mean period based on Fc data
         meanP,xlist,maxindices,quartertimes,quartervalues,allqpositions = getMeanPeriodandPeakInfo(Fcarray,t)
         #print("Vs step size and period: ", ("%.4f" % currentstep, "%.4f" % meanP))
-
         periods.append("%.4f" % meanP)
+        
+        # Store only results whose meanP is sufficiently close to 24 h
+        if abs(meanP-24.0) < 0.05:
+            finalresults.append([meanP,xlist,maxindices,quartertimes,quartervalues,allqpositions])
+            
+    return allsteps, periods, finalresults
 
-    return allsteps, periods
-
-
+"""
 # Try light of 12 h and dark of 12 h
 # Answer: minimum step size of .032
-allsteps, periods = findVsStep(state0, 12.0, 12.0)
+allsteps, periods, results12 = findVsStep(state0, 12.0, 12.0)
 # Plot
 plt.figure(1)
 plt.plot(allsteps,periods)
@@ -340,7 +346,7 @@ plt.show()
 
 # Try light of 18 h and dark of 6 h
 # Answer: minimum step size of 0.12
-allsteps18, periods18 = findVsStep(state0, 18.0, 6.0)
+allsteps18, periods18, results18 = findVsStep(state0, 18.0, 6.0)
 # Plot
 plt.figure(2)
 plt.plot(allsteps18,periods18)
@@ -348,3 +354,57 @@ plt.title('Neurospora Clock: 18 h/6 h light/dark Conditions')
 plt.xlabel("Minimum step size of Vs")
 plt.ylabel("Mean Period")
 plt.show()
+"""
+
+# Now that we have the step, we can look at results
+# Using the known parameters
+
+h = 0.01 # Stepsize for time
+starttime = 0.0
+endtime = 100
+t = np.arange(starttime, endtime, h)
+state0 = [0, 0, 0]
+light = 12.0
+dark = 12.0
+step = 0.032
+
+results12h = odeint(periodVaryingVsStep, state0, t, args=(step,light,dark))
+
+Marray12h = results12h[:,0]
+Fcarray12h = results12h[:,1]
+Fnarray12h = results12h[:,2]
+
+meanPM, xlistM, maxindicesM, quartertimesM, quartervaluesM, allqpositionsM = getMeanPeriodandPeakInfo(Marray12h,t)
+meanPFc, xlistFc, maxindicesFc, quartertimesFc, quartervaluesFc, allqpositionsFc = getMeanPeriodandPeakInfo(Fcarray12h,t)
+meanPFn, xlistFn, maxindicesFn, quartertimesFn, quartervaluesFn, allqpositionsFn = getMeanPeriodandPeakInfo(Fnarray12h,t)
+
+# Plot the M(t), Fc(t), and Fn(t)
+# Mark the 12 h time points
+fig, axes = plt.subplots(1,1, figsize=(5, 5))
+labels = ["concentration of mRNA", "protein level in cytoskeleton", "protein level in nucleus"]
+# Plot the M(t), Fc(t), and Fn(t) concentrations over time
+plt.plot(t, Marray12h, 'blue', t, Fcarray12h, 'green', t, Fnarray12h, 'red')
+# Plot the light and dark stimuli 
+# 1 if light, 0 if dark
+plt.plot(t, t % (dark + light) >= dark, '--', c='orange')
+
+"""
+# Plot M quarter points - index is 0
+plt.plot(results[0][4],results[0][5], '.', c= 'black')
+plt.plot(results[0][7],results[0][8], '.', c= 'orange')
+# Plot Fc quarter points - index is 1
+plt.plot(results[1][4],results[1][5], '.', c= 'black')
+plt.plot(results[1][7],results[1][8], '.', c= 'orange')
+# Plot Fn quarter points - index is 2
+plt.plot(results[2][4],results[2][5], '.', c= 'black')
+plt.plot(results[2][7],results[2][8], '.', c= 'orange')
+plt.show()
+
+# Plot
+plt.figure(2)
+plt.plot(allsteps18,periods18)
+plt.title('Plot Everything')
+plt.xlabel("Time (hours)")
+plt.ylabel("Concentration")
+plt.show()
+"""
