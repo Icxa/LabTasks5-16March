@@ -332,7 +332,7 @@ def findVsStep(state0, light, dark):
             
     return allsteps, periods, finalresults
 
-"""
+
 # Try light of 12 h and dark of 12 h
 # Answer: minimum step size of .032
 allsteps, periods, results12 = findVsStep(state0, 12.0, 12.0)
@@ -354,7 +354,6 @@ plt.title('Neurospora Clock: 18 h/6 h light/dark Conditions')
 plt.xlabel("Minimum step size of Vs")
 plt.ylabel("Mean Period")
 plt.show()
-"""
 
 # Now that we have the step, we can look at results
 # Using the known parameters
@@ -382,11 +381,35 @@ meanPFn, xlistFn, maxindicesFn, quartertimesFn, quartervaluesFn, allqpositionsFn
 # Mark the 12 h time points
 fig, axes = plt.subplots(1,1, figsize=(5, 5))
 labels = ["concentration of mRNA", "protein level in cytoskeleton", "protein level in nucleus"]
+plt.title('Neurospora Clock: 18 h/6 h light/dark Conditions')
 # Plot the M(t), Fc(t), and Fn(t) concentrations over time
 plt.plot(t, Marray12h, 'blue', t, Fcarray12h, 'green', t, Fnarray12h, 'red')
 # Plot the light and dark stimuli 
 # 1 if light, 0 if dark
 plt.plot(t, t % (dark + light) >= dark, '--', c='orange')
+plt.xlabel("Concentration")
+plt.ylabel("Time t (h)")
+plt.show()
+
+
+results18h = odeint(periodVaryingVsStep, state0, t, args=(step,18.0,6.0))
+
+Marray18h = results18h[:,0]
+Fcarray18h = results18h[:,1]
+Fnarray18h = results18h[:,2]
+
+fig, axes = plt.subplots(1,1, figsize=(5, 5))
+labels = ["concentration of mRNA", "protein level in cytoskeleton", "protein level in nucleus"]
+plt.title('Neurospora Clock: 18 h/6 h light/dark Conditions')
+# Plot the M(t), Fc(t), and Fn(t) concentrations over time
+plt.plot(t, Marray18h, 'blue', t, Fcarray18h, 'green', t, Fnarray18h, 'red')
+# Plot the light and dark stimuli 
+# 1 if light, 0 if dark
+plt.plot(t, t % (dark + light) >= dark, '--', c='orange')
+plt.xlabel("Concentration")
+plt.ylabel("Time t (h)")
+plt.show()
+
 
 """
 # Plot M quarter points - index is 0
